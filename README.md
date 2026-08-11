@@ -21,6 +21,15 @@ Every response pairs the fixed serving contract (`prefer: local`, image schema,
 There is no pool, GPU worker, autoscaler, or Turbopuffer-native embedding leg in
 the write or query path.
 
+## Verified deployment
+
+On 2026-08-11 the digest-pinned Kubernetes indexer completed 2,500 Commons
+images across 54 source pages. Its final summary reported
+`embedding: gateway LocalClipEmbeddingProvider on CPU` and `gpu_workers: 0`;
+the pod selected the cluster's CPU worker pool and declared no GPU resource.
+An uncached public `sunset over water` query returned a sunset first and echoed
+the fixed local 512d text→image contract plus gateway embedding time.
+
 ## Corpus and license
 
 The corpus is a deterministic slice of Wikimedia Commons'
