@@ -66,8 +66,9 @@ kubectl logs -n lens -l app.kubernetes.io/component=indexer -f
 ```
 
 The Job requests ordinary CPU and no GPU resource. It writes one image at a
-time, pauses between writes, and applies bounded exponential retry when the
-gateway reports an upstream Wikimedia 429 (tracked in `hev/layer-pro#481`). Its
+time at a sub-one-request-per-second steady cadence, and applies bounded
+exponential retry when the gateway reports an upstream Wikimedia 429 (tracked
+in `hev/layer-pro#481`). Its
 final JSON summary states
 `"embedding": "gateway LocalClipEmbeddingProvider on CPU"` and
 `"gpu_workers": 0`. Stable Commons page IDs make a clean Job retry idempotent.
