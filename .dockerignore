@@ -1,0 +1,8 @@
+*
+!pyproject.toml
+!uv.lock
+!README.md
+!indexer/
+!indexer/**
+!lens_common/
+!lens_common/**
