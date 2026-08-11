@@ -33,7 +33,7 @@ spec:
             - --batch-size
             - "1"
             - --write-delay-seconds
-            - "0.5"
+            - "1.0"
             - --reset-state
           env:
             - name: LAYER_GATEWAY_URL
