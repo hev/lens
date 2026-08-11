@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Search freely licensed Wikimedia Commons images through Layer's in-process CPU CLIP embedding leg.">
+    <title>Lens × Layer local CLIP</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main>
+      <header class="masthead">
+        <a class="wordmark" href="/" aria-label="Lens home">
+          <span class="mark" aria-hidden="true"><i></i></span>
+          <span><strong>lens</strong><small>local CLIP image search</small></span>
+        </a>
+        <a class="about-link" href="https://github.com/hev/lens">View the two-line schema ↗</a>
+      </header>
+
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Wikimedia Commons · live cross-modal search</p>
+          <h1>Describe what<br>you want to see.</h1>
+          <p class="intro">Layer turns a text query into the same CLIP space as thousands of freely licensed images. Both towers run inside the public gateway on CPU—no GPU worker, embedding pool, or client model.</p>
+        </div>
+        <form id="search-form" role="search">
+          <label class="sr-only" for="query">Describe an image</label>
+          <div class="search-box">
+            <input id="query" name="query" type="search" maxlength="500" autocomplete="off" placeholder="sunset over water" required>
+            <button type="submit"><span>Search images</span><b aria-hidden="true">↗</b></button>
+          </div>
+        </form>
+        <div class="examples" aria-label="Example searches">
+          <span>Try a scene</span>
+          <button type="button">sunset over water</button>
+          <button type="button">red sports car</button>
+          <button type="button">snowy mountain village</button>
+          <button type="button">bird with blue feathers</button>
+        </div>
+      </section>
+
+      <section class="proof" aria-label="Serving proof">
+        <div class="proof-item signal">
+          <span>Serving leg</span>
+          <strong><i class="pulse"></i> local CLIP</strong>
+        </div>
+        <div class="proof-item">
+          <span>Compute</span>
+          <strong>gateway CPU</strong>
+        </div>
+        <div class="proof-item">
+          <span>Model</span>
+          <strong>ViT-B/32 · 512d</strong>
+        </div>
+        <div class="proof-item">
+          <span>Gateway embed</span>
+          <strong id="embed-latency">waiting</strong>
+        </div>
+        <div class="proof-item">
+          <span>Round trip</span>
+          <strong id="total-latency">waiting</strong>
+        </div>
+        <div class="proof-item">
+          <span>Images indexed</span>
+          <strong id="corpus-size">loading…</strong>
+        </div>
+        <div class="proof-item">
+          <span>GPU workers</span>
+          <strong>0</strong>
+        </div>
+      </section>
+
+      <section id="results-section" class="results-section" hidden>
+        <div class="results-heading">
+          <div>
+            <p class="eyebrow">Nearest images</p>
+            <h2 id="result-summary">Results</h2>
+          </div>
+          <span id="namespace-label">lens-commons-quality</span>
+        </div>
+        <ol id="results" aria-live="polite"></ol>
+      </section>
+
+      <section id="empty" class="empty" hidden>
+        <span aria-hidden="true">◌</span>
+        <h2>No close images yet.</h2>
+        <p>Try a broader visual description.</p>
+      </section>
+
+      <footer>
+        <p>Images: <a href="https://commons.wikimedia.org/wiki/Commons:Quality_images">Wikimedia Commons Quality images</a>. Attribution and per-file license travel with every result.</p>
+        <p>Built on <a href="https://hevlayer.com">hev layer</a> · <a href="https://github.com/hev/lens">source</a></p>
+        <p id="status">Ready for a description.</p>
+      </footer>
+    </main>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

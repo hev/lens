@@ -1,0 +1,18 @@
+apiVersion: hevlayer.com/v1alpha1
+kind: Warehouse
+metadata:
+  name: wikimedia-commons
+  namespace: lens
+spec:
+  kind: rest
+  rest:
+    baseUrl: https://commons.wikimedia.org
+    verify:
+      path: /w/api.php
+      query:
+        action: query
+        meta: siteinfo
+        format: json
+    rateLimit:
+      requestsPerSecond: 2
+  verifyInterval: 24h

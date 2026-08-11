@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: lens-indexer
+  namespace: lens
+  labels:
+    app.kubernetes.io/name: lens
+    app.kubernetes.io/component: indexer
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: lens
+        app.kubernetes.io/component: indexer
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: indexer
+          image: 186219257916.dkr.ecr.us-east-1.amazonaws.com/hev-lens-indexer@sha256:b32fd544384e566de74eed6af2b9dc4eb5ae284749feccca7e6f354c795002ba
+          imagePullPolicy: IfNotPresent
+          args:
+            - --limit
+            - "2500"
+            - --reset-state
+          env:
+            - name: LAYER_GATEWAY_URL
+              value: https://aws-us-east-1.hevlayer.com
+            - name: LAYER_NAMESPACE
+              value: lens-commons-quality
+            - name: LAYER_TIMEOUT_SECONDS
+              value: "180"
+            - name: LAYER_GATEWAY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: lens-turbopuffer
+                  key: credential
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi

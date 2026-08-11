@@ -1,0 +1,19 @@
+apiVersion: hevlayer.com/v1
+kind: Index
+metadata:
+  name: lens-commons-quality
+  namespace: layer
+spec:
+  backend:
+    storeRef: turbopuffer-default
+    namespace: lens-commons-quality
+    distanceMetric: cosine_distance
+  metadata:
+    labels:
+      app: lens
+      corpus: wikimedia-commons-quality-images
+    tags:
+      - image-search
+      - local-clip
+      - cpu-only
+  consistency: strong
