@@ -58,3 +58,6 @@ def test_deployed_indexer_uses_mesh_ecr_digest():
     manifest = (Path(__file__).parents[1] / "deploy" / "indexer-job.yaml").read_text()
     assert "186219257916.dkr.ecr.us-east-1.amazonaws.com/hev-lens-indexer@sha256:" in manifest
     assert "ghcr.io/hev/" not in manifest
+    assert "layer.hev.dev/compute: cpu" in manifest
+    assert "layer.hev.dev/node-role: worker-cpu" in manifest
+    assert "nvidia.com/gpu" not in manifest
