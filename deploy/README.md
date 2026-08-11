@@ -29,6 +29,11 @@ preprocessor_config.json  910e70b3956ac9879ebc90b22fb3bc8a75b6a0677814500101a4c0
 The chart path and render guard are in `hev/layer-pro#477`. No model file or
 dataset is committed here.
 
+The verified live Helm revision 79 uses gateway image digest
+`sha256:f55e76b3455e6dd07824d8cf5f5c66bec07205eb1e0c13ba128183c0da720177`
+from the mesh-account ECR. The gateway pod runs on an `i4i.xlarge` CPU system
+node with no GPU allocatable resource.
+
 ## Indexer image
 
 Build and push only to the mesh-account ECR, using Depot:
