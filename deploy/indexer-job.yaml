@@ -25,7 +25,7 @@ spec:
           effect: NoSchedule
       containers:
         - name: indexer
-          image: 186219257916.dkr.ecr.us-east-1.amazonaws.com/hev-lens-indexer@sha256:b32fd544384e566de74eed6af2b9dc4eb5ae284749feccca7e6f354c795002ba
+          image: 186219257916.dkr.ecr.us-east-1.amazonaws.com/hev-lens-indexer@sha256:f1cd4b35451d8e2c740c2f4e331923e3ff2afe3b2f430d4abf40a93f4ccb27e4
           imagePullPolicy: IfNotPresent
           args:
             - --limit

@@ -38,7 +38,7 @@ aws ecr get-login-password --region us-east-1 \
   | docker login --username AWS --password-stdin 186219257916.dkr.ecr.us-east-1.amazonaws.com
 DEPOT_DISABLE_OTEL=1 depot build --project 8zfcn2cf80 --platform linux/amd64,linux/arm64 \
   -f Dockerfile.indexer \
-  -t 186219257916.dkr.ecr.us-east-1.amazonaws.com/hev-lens-indexer:v0.1.0 \
+  -t 186219257916.dkr.ecr.us-east-1.amazonaws.com/hev-lens-indexer:v0.1.1 \
   --push .
 ```
 
@@ -48,7 +48,7 @@ The live Job is pinned to the multi-architecture manifest digest produced by
 that build:
 
 ```text
-186219257916.dkr.ecr.us-east-1.amazonaws.com/hev-lens-indexer@sha256:b32fd544384e566de74eed6af2b9dc4eb5ae284749feccca7e6f354c795002ba
+186219257916.dkr.ecr.us-east-1.amazonaws.com/hev-lens-indexer@sha256:f1cd4b35451d8e2c740c2f4e331923e3ff2afe3b2f430d4abf40a93f4ccb27e4
 ```
 
 ## Apply and run
