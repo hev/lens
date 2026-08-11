@@ -7,7 +7,7 @@ import sys
 import time
 from html.parser import HTMLParser
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 import httpx
 
@@ -19,6 +19,9 @@ CATEGORY = "Category:Quality images"
 DEFAULT_STATE = Path(".state/indexer.json")
 THUMB_WIDTH = 640
 USER_AGENT = "hev-lens-demo/0.1 (+https://github.com/hev/lens; contact: hello@hevmind.com)"
+DEFAULT_WRITE_DELAY_SECONDS = 0.5
+DEFAULT_WRITE_ATTEMPTS = 7
+DEFAULT_RETRY_BASE_SECONDS = 2.0
 
 
 class _PlainText(HTMLParser):
@@ -116,19 +119,36 @@ def write_batch(
     settings: Settings,
     namespace: str,
     rows: list[dict[str, Any]],
+    *,
+    max_attempts: int = DEFAULT_WRITE_ATTEMPTS,
+    retry_base_seconds: float = DEFAULT_RETRY_BASE_SECONDS,
+    sleep: Callable[[float], None] = time.sleep,
 ) -> dict[str, Any]:
-    response = client.post(
-        f"{settings.gateway_url.rstrip('/')}/v2/namespaces/{namespace}",
-        headers={"Authorization": f"Bearer {settings.gateway_api_key}"},
-        json={
-            "distance_metric": "cosine_distance",
-            "schema": embedding_schema(),
-            "upsert_rows": rows,
-        },
-    )
-    if response.is_error:
-        raise RuntimeError(f"gateway write failed ({response.status_code}): {response.text[:1000]}")
-    return response.json()
+    for attempt in range(max_attempts):
+        response = client.post(
+            f"{settings.gateway_url.rstrip('/')}/v2/namespaces/{namespace}",
+            headers={"Authorization": f"Bearer {settings.gateway_api_key}"},
+            json={
+                "distance_metric": "cosine_distance",
+                "schema": embedding_schema(),
+                "upsert_rows": rows,
+            },
+        )
+        if not response.is_error:
+            return response.json()
+        retryable = response.status_code in {429, 502, 503, 504} or (
+            response.status_code == 422 and "HTTP status client error (429" in response.text
+        )
+        if not retryable or attempt + 1 == max_attempts:
+            raise RuntimeError(f"gateway write failed ({response.status_code}): {response.text[:1000]}")
+        delay = min(retry_base_seconds * (2**attempt), 60.0)
+        print(
+            f"retrying gateway image write after upstream throttling "
+            f"attempt={attempt + 1}/{max_attempts} delay_seconds={delay:g}",
+            file=sys.stderr,
+        )
+        sleep(delay)
+    raise AssertionError("unreachable")
 
 
 def load_checkpoint(path: Path) -> tuple[int, dict[str, str] | None]:
@@ -166,7 +186,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--namespace", default=None)
     parser.add_argument("--limit", type=int, default=2_500, help="total indexed rows; 0 runs until the category ends")
     parser.add_argument("--page-size", type=int, default=50)
-    parser.add_argument("--batch-size", type=int, default=4)
+    parser.add_argument("--batch-size", type=int, default=1)
+    parser.add_argument("--write-delay-seconds", type=float, default=DEFAULT_WRITE_DELAY_SECONDS)
     parser.add_argument("--state", type=Path, default=DEFAULT_STATE)
     parser.add_argument("--reset-state", action="store_true")
     return parser.parse_args()
@@ -177,8 +198,8 @@ def main() -> None:
     settings = Settings()
     if not settings.gateway_api_key:
         raise SystemExit("LAYER_GATEWAY_API_KEY is required")
-    if args.limit < 0 or args.page_size < 1 or args.batch_size < 1:
-        raise SystemExit("--limit must be >= 0; page and batch sizes must be positive")
+    if args.limit < 0 or args.page_size < 1 or args.batch_size < 1 or args.write_delay_seconds < 0:
+        raise SystemExit("--limit and write delay must be >= 0; page and batch sizes must be positive")
     namespace = args.namespace or settings.namespace
     if args.reset_state and args.state.exists():
         args.state.unlink()
@@ -204,6 +225,8 @@ def main() -> None:
                     f"gateway_embed_ms={performance.get('embedding_ms')}",
                     file=sys.stderr,
                 )
+                if args.write_delay_seconds:
+                    time.sleep(args.write_delay_seconds)
             continuation = next_page
             save_checkpoint(args.state, rows=indexed, continuation=continuation)
             if continuation is None:

@@ -1,6 +1,9 @@
 from pathlib import Path
 
-from indexer.__main__ import has_clean_license, page_row, plain_text
+import httpx
+
+from indexer.__main__ import has_clean_license, page_row, plain_text, write_batch
+from lens_common.config import Settings
 
 
 def metadata(value: str) -> dict[str, str]:
@@ -61,3 +64,35 @@ def test_deployed_indexer_uses_mesh_ecr_digest():
     assert "layer.hev.dev/compute: cpu" in manifest
     assert "layer.hev.dev/node-role: worker-cpu" in manifest
     assert "nvidia.com/gpu" not in manifest
+
+
+def test_write_batch_retries_gateway_wrapped_upstream_429():
+    attempts = 0
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal attempts
+        attempts += 1
+        if attempts == 1:
+            return httpx.Response(
+                422,
+                json={"error": "validation_error", "message": "HTTP status client error (429 throttled)"},
+            )
+        return httpx.Response(200, json={"performance": {"embedding_images": 1}})
+
+    settings = Settings(
+        gateway_url="https://gateway.test",
+        gateway_api_key="secret",
+        namespace="lens",
+    )
+    delays: list[float] = []
+    with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+        result = write_batch(
+            client,
+            settings,
+            "lens",
+            [{"id": "commons-1", "image_url": "https://example.test/image.jpg"}],
+            sleep=delays.append,
+        )
+    assert attempts == 2
+    assert delays == [2.0]
+    assert result["performance"]["embedding_images"] == 1
