@@ -39,6 +39,13 @@ def plain_text(value: str | None) -> str:
     return " ".join(html.unescape("".join(parser.parts)).split())
 
 
+def bounded_text(value: str | None, limit: int) -> str:
+    text = plain_text(value)
+    if len(text) <= limit:
+        return text
+    return text[: limit - 1].rstrip() + "…"
+
+
 def metadata_value(metadata: dict[str, Any], key: str) -> str:
     item = metadata.get(key) or {}
     return plain_text(str(item.get("value") or ""))
@@ -69,15 +76,17 @@ def page_row(page: dict[str, Any]) -> dict[str, Any] | None:
     if not image_url or not source_url or not license_name or not has_clean_license(metadata):
         return None
     raw_title = metadata_value(metadata, "ObjectName") or str(page.get("title") or "")
-    title = raw_title.removeprefix("File:").strip()
+    title = bounded_text(raw_title.removeprefix("File:").strip(), 180)
     return {
         "id": f"commons-{page['pageid']}",
         "title": title or f"Commons image {page['pageid']}",
-        "description": metadata_value(metadata, "ImageDescription") or title,
+        "description": bounded_text(metadata_value(metadata, "ImageDescription") or title, 600),
         "image_url": str(image_url),
         "source_url": str(source_url),
-        "artist": metadata_value(metadata, "Artist") or "Wikimedia Commons contributor",
-        "license_name": license_name,
+        "artist": bounded_text(
+            metadata_value(metadata, "Artist") or "Wikimedia Commons contributor", 180
+        ),
+        "license_name": bounded_text(license_name, 120),
         "license_url": license_url or str(source_url),
         "width": int(imageinfo.get("thumbwidth") or THUMB_WIDTH),
         "height": int(imageinfo.get("thumbheight") or THUMB_WIDTH),

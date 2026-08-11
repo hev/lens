@@ -2,7 +2,7 @@ from pathlib import Path
 
 import httpx
 
-from indexer.__main__ import has_clean_license, page_row, plain_text, write_batch
+from indexer.__main__ import bounded_text, has_clean_license, page_row, plain_text, write_batch
 from lens_common.config import Settings
 
 
@@ -12,6 +12,11 @@ def metadata(value: str) -> dict[str, str]:
 
 def test_plain_text_removes_commons_html():
     assert plain_text('<a href="/wiki/User:Sky">Sky &amp; Sea</a>') == "Sky & Sea"
+
+
+def test_bounded_text_keeps_cards_safe_from_malformed_metadata():
+    assert bounded_text("  concise metadata  ", 30) == "concise metadata"
+    assert bounded_text("x" * 50, 10) == "x" * 9 + "…"
 
 
 def test_clean_license_filter_accepts_cc_and_rejects_gfdl_only():

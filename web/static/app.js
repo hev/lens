@@ -20,19 +20,27 @@ const safeDimension = (value) => {
   return Number.isFinite(number) && number > 0 ? Math.round(number) : 1;
 };
 
+const compactText = (value, fallback, limit) => {
+  const normalized = String(value || fallback).replace(/\s+/g, " ").trim();
+  return normalized.length <= limit ? normalized : `${normalized.slice(0, limit - 1).trimEnd()}…`;
+};
+
 function renderRows(rows) {
   results.innerHTML = rows.map((row, index) => {
     const width = safeDimension(row.width);
     const height = safeDimension(row.height);
     const distance = Number.isFinite(row.$dist) ? row.$dist.toFixed(4) : "match";
+    const title = compactText(row.title, "Untitled image", 180);
+    const description = compactText(row.description, "Freely licensed image from Wikimedia Commons.", 240);
+    const artist = compactText(row.artist, "Commons contributor", 120);
     return `
       <li class="result">
         <a class="image-link" data-rank="${index + 1}" href="${escapeHtml(row.source_url)}" target="_blank" rel="noreferrer" style="aspect-ratio:${width}/${height}">
-          <img src="${escapeHtml(row.image_url)}" alt="${escapeHtml(row.title || row.description || "Wikimedia Commons image")}" loading="lazy" width="${width}" height="${height}">
+          <img src="${escapeHtml(row.image_url)}" alt="${escapeHtml(title)}" loading="lazy" width="${width}" height="${height}">
         </a>
-        <h3><a href="${escapeHtml(row.source_url)}" target="_blank" rel="noreferrer">${escapeHtml(row.title || "Untitled image")}</a></h3>
-        <p class="description">${escapeHtml(row.description || "Freely licensed image from Wikimedia Commons.")}</p>
-        <p class="meta"><span>${escapeHtml(row.artist || "Commons contributor")}</span><span>·</span><a href="${escapeHtml(row.license_url || row.source_url)}" target="_blank" rel="noreferrer">${escapeHtml(row.license_name || "source license")}</a><span>·</span><span>distance ${distance}</span></p>
+        <h3><a href="${escapeHtml(row.source_url)}" target="_blank" rel="noreferrer">${escapeHtml(title)}</a></h3>
+        <p class="description">${escapeHtml(description)}</p>
+        <p class="meta"><span>${escapeHtml(artist)}</span><span>·</span><a href="${escapeHtml(row.license_url || row.source_url)}" target="_blank" rel="noreferrer">${escapeHtml(row.license_name || "source license")}</a><span>·</span><span>distance ${distance}</span></p>
       </li>`;
   }).join("");
 }
