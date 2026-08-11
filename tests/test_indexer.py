@@ -71,6 +71,14 @@ def test_deployed_indexer_uses_mesh_ecr_digest():
     assert "nvidia.com/gpu" not in manifest
 
 
+def test_remote_build_context_is_an_explicit_allowlist():
+    dockerignore = (Path(__file__).parents[1] / ".dockerignore").read_text().splitlines()
+    assert dockerignore[0] == "*"
+    assert "!indexer/**" in dockerignore
+    assert "!lens_common/**" in dockerignore
+    assert not any(".env" in line or ".dev.vars" in line for line in dockerignore[1:])
+
+
 def test_write_batch_retries_gateway_wrapped_upstream_429():
     attempts = 0
 
