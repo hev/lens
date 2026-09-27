@@ -48,8 +48,8 @@ dataset or image binary is checked into this repository.
 ## Run
 
 ```sh
-cp .env.example .env
-# Fill LAYER_GATEWAY_API_KEY from 1Password; never commit it.
+# The gateway key comes from 1Password at run time; never write it to a file.
+export LAYER_GATEWAY_API_KEY="$(op read op://mesh-staging/layer-turbopuffer/credential)"
 uv sync
 
 # Small disposable smoke. Use a lens-scratch-* namespace for live tests.
@@ -70,11 +70,10 @@ written, so an interrupted page is safely replayed.
 server-side and serves `web/static/` through Cloudflare assets.
 
 ```sh
-cp .dev.vars.example .dev.vars
 npm install
 npm test
-npx wrangler dev
-npx wrangler secret put LAYER_API_KEY
+npx wrangler dev --var LAYER_API_KEY:"$LAYER_GATEWAY_API_KEY"
+op read op://mesh-staging/layer-turbopuffer/credential | npx wrangler secret put LAYER_API_KEY
 npx wrangler deploy
 ```
 
@@ -89,4 +88,5 @@ Both backends send the same query directly to Layer:
 
 There is no client-side image fetch, embedding model, tokenizer, query vector,
 fusion, or reranker. Model weights land on the gateway through the checksum-
-pinned Helm path documented in `deploy/README.md`.
+pinned Helm path documented in `deploy/README.md`. The local CLIP serving
+contract is documented at https://hevlayer.com/docs/api/embed/.

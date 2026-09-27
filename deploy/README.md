@@ -26,8 +26,7 @@ config.json               b575ef3c36f2a057fa19e221650105052d61cc9c1a972ec15019c6
 preprocessor_config.json  910e70b3956ac9879ebc90b22fb3bc8a75b6a0677814500101a4c072bd7857bd
 ```
 
-The chart path and render guard are in `hev/layer-pro#477`. No model file or
-dataset is committed here.
+No model file or dataset is committed here.
 
 The verified live Helm revision 79 uses gateway image digest
 `sha256:f55e76b3455e6dd07824d8cf5f5c66bec07205eb1e0c13ba128183c0da720177`
@@ -63,7 +62,7 @@ Create the credential without committing it, then apply the records and Job:
 ```sh
 kubectl apply -f deploy/namespace.yaml
 kubectl -n lens create secret generic lens-turbopuffer \
-  --from-literal=credential="$LAYER_GATEWAY_API_KEY"
+  --from-literal=credential="$(op read op://mesh-staging/layer-turbopuffer/credential)"
 kubectl apply -f deploy/vectorstore.yaml -f deploy/warehouse.yaml
 kubectl apply -f deploy/index.yaml
 kubectl apply -f deploy/indexer-job.yaml
@@ -72,8 +71,7 @@ kubectl logs -n lens -l app.kubernetes.io/component=indexer -f
 
 The Job requests ordinary CPU and no GPU resource. It writes one image at a
 time at a sub-one-request-per-second steady cadence, and applies bounded
-exponential retry when the gateway reports an upstream Wikimedia 429 (tracked
-in `hev/layer-pro#481`). Its
+exponential retry when the gateway reports an upstream Wikimedia 429. Its
 final JSON summary states
 `"embedding": "gateway LocalClipEmbeddingProvider on CPU"` and
 `"gpu_workers": 0`. Stable Commons page IDs make a clean Job retry idempotent.
