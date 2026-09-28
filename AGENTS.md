@@ -26,9 +26,11 @@ hits. The demo working is table stakes; the report is the deliverable.
   `../layer-pro/site/src/content/docs/` (local CLIP: `api/embed.mdx`, public
   at https://hevlayer.com/docs/api/embed/) and
   `../layer-pro/apps/layer-gateway/openapi.yaml`.
-- **Report friction in Linear** (team `layer`): a bug or a wrong or missing
-  doc is an issue; a missing capability is an RFC in
-  `../layer-pro/docs/rfcs/` with this workload as the motivating case.
+- **Report friction in Linear** (team LYR, hevmind workspace, via the
+  `linear` CLI): a bug or a wrong or missing doc is an issue; a missing
+  capability is an RFC, written as an `RFC: <name>` document on a Linear
+  project with this workload as the motivating case. New RFCs are not files
+  in `../layer-pro/docs/rfcs/` and are not numbered.
 - **Layer operates itself.** Don't hand-tune scaling. If you must intervene
   to keep the demo up, the intervention gets an issue too.
 
