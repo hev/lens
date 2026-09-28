@@ -8,7 +8,6 @@ class Settings(BaseSettings):
     timeout_seconds: float = 180.0
 
     model_config = SettingsConfigDict(
-        env_file=".env",
         extra="ignore",
         env_prefix="LAYER_",
     )
