@@ -9,6 +9,17 @@ and `../layer-pro/apps/layer-gateway/openapi.yaml`. Gateway/API friction becomes
 a GitHub issue on `hev/layer-pro`; engine friction becomes an issue on
 `hev/search`.
 
+## Product context
+
+Wikimedia Commons image search is a design-preview customer of hev layer. The
+public deliverable is `lens.hevlayer.com`; the visible artifact is Layer's
+in-process CPU CLIP embedding performance echo.
+
+Reimplement nothing the stack owns. The app does not fetch or preprocess images
+for embedding, embed queries, tokenize, fuse, or rerank. Both backends issue the
+same gateway `Embed` query against the image column. Commands are under "Local
+verification" below; feedback routing is above.
+
 ## Local verification
 
 ```sh
